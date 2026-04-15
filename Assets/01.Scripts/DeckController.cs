@@ -16,14 +16,13 @@ public class DeckController : MonoBehaviour
 
     public int CurrentRerollCount { get; private set; }
     public int MaxRerollCount => rerollPerFire;
-
     public event Action<int, int> OnRerollCountChanged;
 
     [SerializeField] private List<Card> drawPile = new List<Card>();
     [SerializeField] private List<Card> discardPile = new List<Card>();
 
     [SerializeField] private SquadController squadController;
-
+    [SerializeField] private TempStorageController tempStorageController;
 
     private void Start()
     {
@@ -32,27 +31,36 @@ public class DeckController : MonoBehaviour
         ResetRerollCount();
     }
 
-    public void RebuildAndDraw() 
+    public void RebuildAndDraw() // Fire
     {
-        ReturnHandToDiscard();   
-        squadController.FlushAllToDiscard(discardPile);
+        ReturnHandToDiscard();
+
+        if (tempStorageController != null)
+            tempStorageController.FlushAllToDiscard(discardPile);
+
+        if (squadController != null)
+            squadController.FlushAllToDiscard(discardPile);
+
         ReshuffleDiscardIntoDraw();
         DrawHand();
         ResetRerollCount();
-        Debug.Log("발사 발동");
- 
     }
-
 
     public void RerollHand()
     {
-        if(CurrentRerollCount <= 0) return;
+        if (CurrentRerollCount <= 0) return;
+
         ReturnHandToDiscard();
         DrawHand();
+
         CurrentRerollCount--;
         NotifyRerollCountChanged();
-        Debug.Log("리롤 발동");
+    }
 
+    public void AddToDiscard(Card card)
+    {
+        if (card == null) return;
+        discardPile.Add(card);
     }
 
     private void RebuildDeck()
@@ -84,14 +92,13 @@ public class DeckController : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
+            CardView slot = handSlots[i];
+            if (slot == null) continue;
+
             if (TryDrawOne(out Card card))
-            {
-                handSlots[i].SetCard(card); 
-            }
+                slot.SetCard(card);
             else
-            {
-                handSlots[i].ClearCard();
-            }
+                slot.ClearCard();
         }
     }
 
@@ -109,7 +116,6 @@ public class DeckController : MonoBehaviour
         return true;
     }
 
-
     private void ReturnHandToDiscard()
     {
         int count = Mathf.Min(handSize, handSlots.Length);
@@ -117,11 +123,10 @@ public class DeckController : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             CardView slot = handSlots[i];
-            if (slot != null && slot.HasCard)
-            {
-                discardPile.Add(slot.Current);
-                slot.ClearCard();
-            }
+            if (slot == null || !slot.HasCard || slot.Current == null) continue;
+
+            discardPile.Add(slot.Current);
+            slot.ClearCard();
         }
     }
 
@@ -145,16 +150,12 @@ public class DeckController : MonoBehaviour
         }
     }
 
-    public void DiscardDeck()
-    {
-        Debug.LogWarning("Errror");
-    }
-
     private void ResetRerollCount()
     {
         CurrentRerollCount = rerollPerFire;
         NotifyRerollCountChanged();
     }
+
     private void NotifyRerollCountChanged()
     {
         OnRerollCountChanged?.Invoke(CurrentRerollCount, MaxRerollCount);

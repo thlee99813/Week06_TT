@@ -11,15 +11,19 @@ public class SquadController : MonoBehaviour
 
     [SerializeField] private SquadGroup[] squads = new SquadGroup[3];
 
-    public bool TryPlaceFromHand(CardView handCard, int squadIndex)
+    public bool CanPlaceInSquad(int squadIndex)
     {
-        if (handCard == null) return false;
+        if (squadIndex < 0 || squadIndex >= squads.Length) return false;
+        return FindFirstEmptySlot(squads[squadIndex].slots) != null;
+    }
+
+    public bool TryPlaceCard(int squadIndex, Card card)
+    {
+        if (card == null) return false;
         if (squadIndex < 0 || squadIndex >= squads.Length) return false;
 
         CardView targetSlot = FindFirstEmptySlot(squads[squadIndex].slots);
         if (targetSlot == null) return false;
-
-        if (!handCard.TryConsumeForSquad(out Card card)) return false;
 
         targetSlot.SetCard(card);
         return true;
@@ -37,11 +41,12 @@ public class SquadController : MonoBehaviour
             for (int j = 0; j < slots.Length; j++)
             {
                 CardView slot = slots[j];
-                if (slot == null || !slot.HasCard || slot.Current == null) continue;
+                if (slot == null || !slot.HasCard) continue;
 
-                discardPile.Add(slot.Current);
+                if (slot.TryTakeCard(out Card card) && card != null)
+                    discardPile.Add(card);
+
                 slot.ClearCard();
-                slot.gameObject.SetActive(false);
             }
         }
     }
@@ -55,6 +60,7 @@ public class SquadController : MonoBehaviour
             if (slots[i] != null && !slots[i].HasCard)
                 return slots[i];
         }
+
         return null;
     }
 }

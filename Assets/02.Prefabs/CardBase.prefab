@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7623609303282522579}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: CardBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 78440024876452229}
   - component: {fileID: 96673592892472249}
   - component: {fileID: 2208542653564806345}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: CardBaseObj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -175,7 +175,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b6d71317e13c5c4c922a4bfe6fdc564, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardDragToSquad
+  sourceType: 0
+  deckController: {fileID: 0}
   squadController: {fileID: 0}
+  tempStorageController: {fileID: 0}
   dragCamera: {fileID: 0}
   dragPlaneY: 0
   raycastMask:
@@ -192,7 +195,7 @@ GameObject:
   - component: {fileID: 2425840203917693611}
   - component: {fileID: 4364928166796188251}
   - component: {fileID: 6963748257143298001}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: CardValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}

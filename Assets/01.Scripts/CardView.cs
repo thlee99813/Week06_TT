@@ -16,6 +16,11 @@ public class CardView : MonoBehaviour
 
     public void SetCard(Card data)
     {
+        if (data == null)
+        {
+            ClearCard();
+            return;
+        }
         gameObject.SetActive(true);
         Current = data;
         HasCard = true;
@@ -33,18 +38,17 @@ public class CardView : MonoBehaviour
         numberText.color = Color.white;
     }
 
-    public bool TryConsumeForSquad(out Card consumedCard)
+    public bool TryTakeCard(out Card takenCard)
     {
         if (!HasCard || Current == null)
         {
-            consumedCard = null;
+            takenCard = null;
             return false;
         }
 
-        consumedCard = Current;
+        takenCard = Current;
         HasCard = false;
         Current = null;
-        gameObject.SetActive(false);
         return true;
     }
 

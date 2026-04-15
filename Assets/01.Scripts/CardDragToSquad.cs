@@ -4,7 +4,21 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CardView), typeof(Collider))]
 public class CardDragToSquad : MonoBehaviour
 {
+    private enum DragSourceType
+    {
+        Hand,
+        Temp
+    }
+
+    [Header("Source")]
+    [SerializeField] private DragSourceType sourceType = DragSourceType.Hand;
+
+    [Header("Controllers")]
+    [SerializeField] private DeckController deckController;
     [SerializeField] private SquadController squadController;
+    [SerializeField] private TempStorageController tempStorageController;
+
+    [Header("Drag")]
     [SerializeField] private Camera dragCamera;
     [SerializeField] private float dragPlaneY = 0f;
     [SerializeField] private LayerMask raycastMask = ~0;
@@ -15,10 +29,15 @@ public class CardDragToSquad : MonoBehaviour
     private bool isDragging;
     private Plane dragPlane;
 
+    [SerializeField] private LayerMask dragStartMask;
+    [SerializeField] private LayerMask dropCheckMask;
+
+
     private void Awake()
     {
         cardView = GetComponent<CardView>();
         cardCollider = GetComponent<Collider>();
+
         if (dragCamera == null) dragCamera = Camera.main;
         dragPlane = new Plane(Vector3.up, new Vector3(0f, dragPlaneY, 0f));
     }
@@ -41,10 +60,11 @@ public class CardDragToSquad : MonoBehaviour
 
     private void TryBeginDrag(Vector2 pointer)
     {
+
         if (!cardView.HasCard) return;
 
         Ray ray = dragCamera.ScreenPointToRay(pointer);
-        if (Physics.Raycast(ray, out RaycastHit hit, 200f, raycastMask))
+        if (Physics.Raycast(ray, out RaycastHit hit, 200f, dragStartMask))
         {
             if (hit.collider == cardCollider || hit.collider.transform.IsChildOf(transform))
             {
@@ -66,14 +86,103 @@ public class CardDragToSquad : MonoBehaviour
         isDragging = false;
         transform.position = startPosition;
 
-        if (squadController == null) return;
+        bool droppedOnValidZone = false;
+        bool moved = false;
 
         Ray ray = dragCamera.ScreenPointToRay(pointer);
-        if (!Physics.Raycast(ray, out RaycastHit hit, 200f, raycastMask)) return;
+        if (Physics.Raycast(ray, out RaycastHit hit, 200f, dropCheckMask))
+        {
+            SquadDropZone squadZone = hit.collider.GetComponentInParent<SquadDropZone>();
+            if (squadZone != null)
+            {
+                droppedOnValidZone = true;
+                moved = TryMoveToSquad(squadZone.SquadIndex);
+            }
+            else
+            {
+                TempStorageDropZone tempZone = hit.collider.GetComponentInParent<TempStorageDropZone>();
+                if (tempZone != null)
+                {
+                    if (sourceType == DragSourceType.Hand)
+                    {
+                        droppedOnValidZone = true;
+                        moved = TryMoveToTempStorage();
+                    }
+                }
+            }
+        }
 
-        SquadDropZone zone = hit.collider.GetComponent<SquadDropZone>();
-        if (zone == null) return;
+        if (!droppedOnValidZone)
+        {
+            if (sourceType == DragSourceType.Temp)
+            {
+                TryDiscardSourceCard();
+            }
+            return;
+        }
 
-        squadController.TryPlaceFromHand(cardView, zone.SquadIndex);
+        if (!moved && sourceType == DragSourceType.Temp)
+        {
+            TryDiscardSourceCard();
+        }
+    }
+
+
+    private bool TryMoveToSquad(int squadIndex)
+    {
+        if (squadController == null) return false;
+        if (!cardView.HasCard) return false;
+        if (!squadController.CanPlaceInSquad(squadIndex)) return false;
+
+        if (!cardView.TryTakeCard(out Card card) || card == null) return false;
+
+        if (!squadController.TryPlaceCard(squadIndex, card))
+        {
+            cardView.SetCard(card);
+            return false;
+        }
+
+        FinalizeSourceAfterMove();
+        return true;
+    }
+
+    private bool TryMoveToTempStorage()
+    {
+        if (sourceType != DragSourceType.Hand) return false;
+        if (tempStorageController == null) return false;
+        if (!tempStorageController.HasEmptySlot()) return false;
+
+        if (!cardView.TryTakeCard(out Card card) || card == null) return false;
+
+        if (!tempStorageController.TryStoreCard(card))
+        {
+            cardView.SetCard(card);
+            return false;
+        }
+
+        FinalizeSourceAfterMove();
+        return true;
+    }
+
+    private bool TryDiscardSourceCard()
+    {
+        if (deckController == null) return false;
+        if (!cardView.TryTakeCard(out Card card) || card == null) return false;
+
+        deckController.AddToDiscard(card);
+        FinalizeSourceAfterMove();
+        return true;
+    }
+
+    private void FinalizeSourceAfterMove()
+    {
+        if (sourceType == DragSourceType.Hand)
+        {
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            cardView.ClearCard();
+        }
     }
 }

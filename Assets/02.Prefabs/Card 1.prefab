@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9179326559331650414}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Card 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
