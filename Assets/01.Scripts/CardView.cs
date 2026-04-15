@@ -31,11 +31,9 @@ public class CardView : MonoBehaviour
 
     public void ClearCard()
     {
-        gameObject.SetActive(true);
         HasCard = false;
         Current = null;
-        numberText.text = "0";
-        numberText.color = Color.white;
+        gameObject.SetActive(false);
     }
 
     public bool TryTakeCard(out Card takenCard)

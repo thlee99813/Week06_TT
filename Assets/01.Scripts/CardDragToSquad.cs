@@ -103,12 +103,18 @@ public class CardDragToSquad : MonoBehaviour
                 TempStorageDropZone tempZone = hit.collider.GetComponentInParent<TempStorageDropZone>();
                 if (tempZone != null)
                 {
+                    droppedOnValidZone = true;
+
                     if (sourceType == DragSourceType.Hand)
                     {
-                        droppedOnValidZone = true;
                         moved = TryMoveToTempStorage();
                     }
+                    else
+                    {
+                        moved = true;
+                    }
                 }
+
             }
         }
 
