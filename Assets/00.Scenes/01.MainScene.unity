@@ -878,6 +878,7 @@ MonoBehaviour:
   squadController: {fileID: 730180244}
   tempStorageController: {fileID: 1629172217}
   squadScoreSystem: {fileID: 1162695949}
+  monsterLineController: {fileID: 1415990098}
 --- !u!4 &293065370
 Transform:
   m_ObjectHideFlags: 0
@@ -4558,6 +4559,7 @@ MonoBehaviour:
   rowGap: 2.5
   rowMoveDuration: 0.2
   rowMoveEase: 9
+  scorePerEnemyHp: 1000
   maxRowsBeforeGameOver: 5
 --- !u!1001 &1447985646
 PrefabInstance:
@@ -5158,18 +5160,6 @@ MonoBehaviour:
       - m_Target: {fileID: 293065369}
         m_TargetAssemblyTypeName: DeckController, Assembly-CSharp
         m_MethodName: RebuildAndDraw
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1415990098}
-        m_TargetAssemblyTypeName: MonsterLineController, Assembly-CSharp
-        m_MethodName: OnFirePressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

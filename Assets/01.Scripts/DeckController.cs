@@ -25,6 +25,9 @@ public class DeckController : MonoBehaviour
     [SerializeField] private TempStorageController tempStorageController;
     [SerializeField] private SquadScoreSystem squadScoreSystem;
 
+    [SerializeField] private MonsterLineController monsterLineController;
+
+
 
     private void Start()
     {
@@ -35,7 +38,13 @@ public class DeckController : MonoBehaviour
 
     public void RebuildAndDraw() // Fire
     {
-        squadScoreSystem.EvaluateOnFireAndLog();
+        int gainedScore = 0;
+        if (squadScoreSystem != null)
+            gainedScore = squadScoreSystem.EvaluateOnFireAndLog();
+
+        if (monsterLineController != null)
+            monsterLineController.OnFirePressed(gainedScore);
+
         ReturnHandToDiscard();
 
         if (tempStorageController != null)
@@ -48,6 +57,7 @@ public class DeckController : MonoBehaviour
         DrawHand();
         ResetRerollCount();
     }
+
 
     public void RerollHand()
     {
