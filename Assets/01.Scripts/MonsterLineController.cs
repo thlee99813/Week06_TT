@@ -29,6 +29,8 @@ public class MonsterLineController : MonoBehaviour
 
     private readonly List<EnemyRowData> activeRows = new List<EnemyRowData>();
     private bool isGameOver;
+    public int LastDestroyedCount { get; private set; }
+
 
     private void Start()
     {
@@ -42,33 +44,38 @@ public class MonsterLineController : MonoBehaviour
         SpawnTopRow();
     }
 
-    // DeckController에서 Fire 시 호출
     public void OnFirePressed(int gainedScore)
     {
-        if (isGameOver) return;
+        if (isGameOver)
+        {
+            LastDestroyedCount = 0;
+            return;
+        }
 
         MoveAllRowsDown();
         SpawnTopRow();
-        ApplyDamageByScore(gainedScore); // 점수 데미지
+        LastDestroyedCount = ApplyDamageByScore(gainedScore);
         CheckGameOver();
     }
 
-    public void OnFirePressed()
-    {
-        OnFirePressed(0);
-    }
-
-    public void ApplyDamageByScore(int gainedScore)
+    public int ApplyDamageByScore(int gainedScore)
     {
         int destroyCount = Mathf.Max(0, gainedScore / scorePerEnemyHp);
-        if (destroyCount <= 0) return;
+        if (destroyCount <= 0) return 0;
+
+        int destroyed = 0;
 
         for (int i = 0; i < destroyCount; i++)
         {
             if (!TryDestroyOneBottomBlock())
                 break;
+
+            destroyed++;
         }
+
+        return destroyed;
     }
+
 
     private bool TryDestroyOneBottomBlock()
     {
@@ -187,9 +194,7 @@ public class MonsterLineController : MonoBehaviour
                 row.rowRoot.DOKill();
                 Destroy(row.rowRoot.gameObject);
             }
-
         }
-
         activeRows.Clear();
     }
 }

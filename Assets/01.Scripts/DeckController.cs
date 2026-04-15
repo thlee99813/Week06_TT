@@ -26,6 +26,8 @@ public class DeckController : MonoBehaviour
     [SerializeField] private SquadScoreSystem squadScoreSystem;
 
     [SerializeField] private MonsterLineController monsterLineController;
+    [SerializeField] private StageFinishUI stageFinishUI;
+
 
 
 
@@ -36,14 +38,21 @@ public class DeckController : MonoBehaviour
         ResetRerollCount();
     }
 
-    public void RebuildAndDraw() // Fire
+    public void RebuildAndDraw()
     {
         int gainedScore = 0;
         if (squadScoreSystem != null)
-            gainedScore = squadScoreSystem.EvaluateOnFireAndLog();
+            gainedScore = squadScoreSystem.EvaluateOnFire();
 
+        int destroyedCount = 0;
         if (monsterLineController != null)
+        {
             monsterLineController.OnFirePressed(gainedScore);
+            destroyedCount = monsterLineController.LastDestroyedCount;
+        }
+
+        if (stageFinishUI != null && squadScoreSystem != null)
+            stageFinishUI.Play(squadScoreSystem, destroyedCount);
 
         ReturnHandToDiscard();
 
@@ -57,6 +66,8 @@ public class DeckController : MonoBehaviour
         DrawHand();
         ResetRerollCount();
     }
+
+
 
 
     public void RerollHand()
