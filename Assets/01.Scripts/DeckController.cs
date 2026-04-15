@@ -23,6 +23,8 @@ public class DeckController : MonoBehaviour
 
     [SerializeField] private SquadController squadController;
     [SerializeField] private TempStorageController tempStorageController;
+    [SerializeField] private SquadScoreSystem squadScoreSystem;
+
 
     private void Start()
     {
@@ -33,6 +35,7 @@ public class DeckController : MonoBehaviour
 
     public void RebuildAndDraw() // Fire
     {
+        squadScoreSystem.EvaluateOnFireAndLog();
         ReturnHandToDiscard();
 
         if (tempStorageController != null)

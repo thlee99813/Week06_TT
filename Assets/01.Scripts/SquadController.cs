@@ -11,6 +11,29 @@ public class SquadController : MonoBehaviour
 
     [SerializeField] private SquadGroup[] squads = new SquadGroup[3];
 
+    public int SquadCount => squads != null ? squads.Length : 0;
+
+    public bool TryGetSquadCards(int squadIndex, out Card a, out Card b, out Card c)
+    {
+        a = null;
+        b = null;
+        c = null;
+
+        if (squadIndex < 0 || squadIndex >= squads.Length) return false;
+
+        CardView[] slots = squads[squadIndex].slots;
+        if (slots == null || slots.Length < 3) return false;
+
+        if (slots[0] == null || !slots[0].HasCard || slots[0].Current == null) return false;
+        if (slots[1] == null || !slots[1].HasCard || slots[1].Current == null) return false;
+        if (slots[2] == null || !slots[2].HasCard || slots[2].Current == null) return false;
+
+        a = slots[0].Current;
+        b = slots[1].Current;
+        c = slots[2].Current;
+        return true;
+    }
+
     public bool CanPlaceInSquad(int squadIndex)
     {
         if (squadIndex < 0 || squadIndex >= squads.Length) return false;
