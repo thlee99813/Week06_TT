@@ -22,7 +22,7 @@ public class MonsterLineController : MonoBehaviour
     [SerializeField] private Ease rowMoveEase = Ease.OutCubic;
 
     [Header("Enemy HP Rule")]
-    [SerializeField, Min(1)] private int scorePerEnemyHp = 1000;
+    [SerializeField] private int scorePerEnemyHp = 1000;
 
     [Header("Game Over Rule")]
     [SerializeField] private int maxRowsBeforeGameOver = 5;
